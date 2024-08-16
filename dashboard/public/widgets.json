@@ -1,0 +1,55 @@
+{
+    "categories": [
+      {
+        "id": "1",
+        "name": "CSPM Executive Dashboard",
+        "widgets": [
+          { "id": "1", "name": "Security Overview", "content": "Graph showing overall security metrics.", "status": false },
+          { "id": "2", "name": "Compliance Status", "content": "Pie chart of compliance status across regions.", "status": false },
+          { "id": "3", "name": "Threat Intelligence", "content": "Graph of threat intelligence updates.", "status": true },
+          { "id": "4", "name": "Vulnerability Assessment", "content": "List of recent vulnerabilities found.", "status": true },
+          { "id": "5", "name": "Incident Reports", "content": "Bar chart of incidents reported over time.", "status": true }
+        ]
+      },
+      {
+        "id": "2",
+        "name": "CWPP Dashboard",
+        "widgets": [
+          { "id": "6", "name": "Threat Detection", "content": "Graph of detected threats by type.", "status": true },
+          { "id": "7", "name": "Policy Compliance", "content": "Pie chart of policy compliance.", "status": true },
+          { "id": "8", "name": "Risk Assessment", "content": "Graph showing risk levels across the infrastructure.", "status": true },
+          { "id": "9", "name": "Security Alerts", "content": "List of recent security alerts.", "status": true },
+          { "id": "10", "name": "System Performance", "content": "Graph of system performance metrics.", "status": true }
+        ]
+      },
+      {
+        "id": "3",
+        "name": "Registry Scan",
+        "widgets": [
+          { "id": "11", "name": "Scan Results", "content": "Table of recent registry scan results.", "status": true },
+          { "id": "12", "name": "Vulnerability Reports", "content": "List of vulnerabilities detected in scans.", "status": true },
+          { "id": "13", "name": "Threat Trends", "content": "Graph of threat trends over time.", "status": true },
+          { "id": "14", "name": "Compliance Summary", "content": "Summary of compliance results from scans.", "status": true },
+          { "id": "15", "name": "Scan History", "content": "Timeline of past scan results.", "status": true }
+        ]
+      }
+    ],
+    "widgets": [
+      { "id": "1", "name": "Security Overview", "content": "Graph showing overall security metrics.", "categoryId": "1", "status": true },
+      { "id": "2", "name": "Compliance Status", "content": "Pie chart of compliance status across regions.", "categoryId": "1", "status": true },
+      { "id": "3", "name": "Threat Intelligence", "content": "Graph of threat intelligence updates.", "categoryId": "1", "status": true },
+      { "id": "4", "name": "Vulnerability Assessment", "content": "List of recent vulnerabilities found.", "categoryId": "1", "status": true },
+      { "id": "5", "name": "Incident Reports", "content": "Bar chart of incidents reported over time.", "categoryId": "1", "status": true },
+      { "id": "6", "name": "Threat Detection", "content": "Graph of detected threats by type.", "categoryId": "2", "status": true },
+      { "id": "7", "name": "Policy Compliance", "content": "Pie chart of policy compliance.", "categoryId": "2", "status": true },
+      { "id": "8", "name": "Risk Assessment", "content": "Graph showing risk levels across the infrastructure.", "categoryId": "2", "status": true },
+      { "id": "9", "name": "Security Alerts", "content": "List of recent security alerts.", "categoryId": "2", "status": true },
+      { "id": "10", "name": "System Performance", "content": "Graph of system performance metrics.", "categoryId": "2", "status": true },
+      { "id": "11", "name": "Scan Results", "content": "Table of recent registry scan results.", "categoryId": "3", "status": true },
+      { "id": "12", "name": "Vulnerability Reports", "content": "List of vulnerabilities detected in scans.", "categoryId": "3", "status": true },
+      { "id": "13", "name": "Threat Trends", "content": "Graph of threat trends over time.", "categoryId": "3", "status": true },
+      { "id": "14", "name": "Compliance Summary", "content": "Summary of compliance results from scans.", "categoryId": "3", "status": true },
+      { "id": "15", "name": "Scan History", "content": "Timeline of past scan results.", "categoryId": "3", "status": true }
+    ]
+  }
+  
