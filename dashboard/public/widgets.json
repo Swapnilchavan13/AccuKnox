@@ -4,8 +4,8 @@
         "id": "1",
         "name": "CSPM Executive Dashboard",
         "widgets": [
-          { "id": "1", "name": "Security Overview", "content": "Graph showing overall security metrics.", "status": false },
-          { "id": "2", "name": "Compliance Status", "content": "Pie chart of compliance status across regions.", "status": false },
+          { "id": "1", "name": "Security Overview", "content": "Graph showing overall security metrics.", "status": true },
+          { "id": "2", "name": "Compliance Status", "content": "Pie chart of compliance status across regions.", "status": true },
           { "id": "3", "name": "Threat Intelligence", "content": "Graph of threat intelligence updates.", "status": true },
           { "id": "4", "name": "Vulnerability Assessment", "content": "List of recent vulnerabilities found.", "status": true },
           { "id": "5", "name": "Incident Reports", "content": "Bar chart of incidents reported over time.", "status": true }

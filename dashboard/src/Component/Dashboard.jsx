@@ -14,8 +14,7 @@ const Dashboard = () => {
     selectedWidgets,
     selectedCategory,
     searchResults,
-    getUncheckedWidgets,
-    updateWidgetStatus
+    getUncheckedWidgets
   } = useWidgetStore((state) => ({
     categories: state.categories,
     addWidget: state.addWidget,
@@ -27,12 +26,12 @@ const Dashboard = () => {
     selectedWidgets: state.selectedWidgets,
     selectedCategory: state.selectedCategory,
     searchResults: state.searchResults,
-    getUncheckedWidgets: state.getUncheckedWidgets,
-    updateWidgetStatus: state.updateWidgetStatus
+    getUncheckedWidgets: state.getUncheckedWidgets
   }));
 
   const [query, setQuery] = useState('');
-  const [showPopup, setShowPopup] = useState(false);
+  const [showWidgetPopup, setShowWidgetPopup] = useState(false);
+  const [showCategoryPopup, setShowCategoryPopup] = useState(false);
   const [popupCategory, setPopupCategory] = useState(null);
   const [popupWidgets, setPopupWidgets] = useState([]);
   const [newWidget, setNewWidget] = useState({ name: '', content: '' });
@@ -53,17 +52,22 @@ const Dashboard = () => {
     } else {
       setPopupWidgets(searchResults);
     }
-  }, [query, getUncheckedWidgets, searchResults]);
+  }, [query, searchResults, getUncheckedWidgets]);
 
   const handleSearch = (e) => {
-    setQuery(e.target.value);
-    searchWidgets(e.target.value);
+    const searchTerm = e.target.value;
+    setQuery(searchTerm);
+    searchWidgets(searchTerm);
   };
 
   const handleCategorySelect = (categoryId) => {
     setPopupCategory(categoryId);
     setSelectedCategory(categoryId);
-    setPopupWidgets(getUncheckedWidgets()); // Refresh widgets for the selected category
+    if (query === '') {
+      setPopupWidgets(getUncheckedWidgets()); // Reset widgets if no search query
+    } else {
+      searchWidgets(query); // Maintain search filter when changing categories
+    }
   };
 
   const handleConfirm = () => {
@@ -76,7 +80,7 @@ const Dashboard = () => {
         }
       });
     }
-    setShowPopup(false);
+    setShowWidgetPopup(false); // Close the "Add Widget" popup after confirming
   };
 
   const handleWidgetSelect = (widgetId) => {
@@ -87,20 +91,28 @@ const Dashboard = () => {
   };
 
   const handleClosePopup = () => {
-    setShowPopup(false);
+    setShowWidgetPopup(false);
+    setShowCategoryPopup(false);
   };
 
   const handleAddNewWidget = () => {
+    if (!popupCategory) return;
+
     const widget = {
       id: Date.now(),
       name: newWidget.name,
       content: newWidget.content,
       categoryId: popupCategory,
-      status: false // New widgets are initially unchecked
+      status: true
     };
+    
     addWidget(popupCategory, widget);
+
+    // Update popupWidgets to include the new widget
+    setPopupWidgets(prevWidgets => [...prevWidgets, widget]);
+
     setNewWidget({ name: '', content: '' });
-    setShowPopup(false);
+    setShowCategoryPopup(false); // Close the popup after adding
   };
 
   return (
@@ -110,11 +122,15 @@ const Dashboard = () => {
           type="text"
           value={query}
           onChange={handleSearch}
-          placeholder="Search widgets..."
+          placeholder="🔍 Search widgets..."
         />
-        <button className="open-popup-button" onClick={() => setShowPopup(true)}>Add Widget</button>
       </div>
       <div className="grid-container">
+        <div className='dash'>
+          <h1>CNAPP Dashboard</h1>
+          <button className="open-popup-button" onClick={() => setShowWidgetPopup(true)}>Add Widget +</button>
+        </div>
+
         {categories.map(category => (
           <div key={category.id} className="category-container">
             <h2 className="h2tag">{category.name}</h2>
@@ -123,17 +139,21 @@ const Dashboard = () => {
                 .filter(widget => widget.status) // Show only checked widgets
                 .map(widget => (
                 <div key={widget.id} className="widget">
-                  <span>{widget.name}</span>
+                  <span><h3>{widget.name}</h3></span>
                   <p>{widget.content}</p>
                   <button className="remove-button" onClick={() => removeWidget(category.id, widget.id)}>X</button>
                 </div>
               ))}
-              <button onClick={() => handleCategorySelect(category.id)}>Add Widget</button>
+              <div className='btndiv'>
+                <button onClick={() => setShowCategoryPopup(true)}>+ Add New</button>
+              </div>
             </div>
           </div>
         ))}
       </div>
-      {showPopup && (
+
+      {/* Popup for adding existing widgets */}
+      {showWidgetPopup && (
         <div className="popup-container">
           <div className="popup-content">
             <h2>Select Widgets</h2>
@@ -148,10 +168,11 @@ const Dashboard = () => {
                 </div>
               ))}
             </div>
+
             {popupCategory && (
-              <>
-                <div className="widget-selection">
-                  {popupWidgets.map(widget => (
+              <div className="widget-selection">
+                {popupWidgets.length > 0 ? (
+                  popupWidgets.map(widget => (
                     <div
                       key={widget.id}
                       className={`widget-item ${widget.status ? 'selected' : ''}`}
@@ -164,27 +185,57 @@ const Dashboard = () => {
                       />
                       <span>{widget.name}</span>
                     </div>
-                  ))}
-                </div>
-                <button className="add-widget-button" onClick={handleConfirm}>Confirm</button>
-              </>
+                  ))
+                ) : (
+                  <p>No widgets available for this category.</p>
+                )}
+              </div>
             )}
-            <div className="add-new-widget">
-              <h3>Add New Widget</h3>
-              <input
-                type="text"
-                placeholder="Name"
-                value={newWidget.name}
-                onChange={(e) => setNewWidget({ ...newWidget, name: e.target.value })}
-              />
-              <input
-                type="text"
-                placeholder="Content"
-                value={newWidget.content}
-                onChange={(e) => setNewWidget({ ...newWidget, content: e.target.value })}
-              />
-              <button onClick={handleAddNewWidget}>Add Widget</button>
+
+            <button className="close-popup-button" onClick={handleClosePopup}>Close</button>
+            <button className="add-widget-button" onClick={handleConfirm}>Confirm</button>
+          </div>
+        </div>
+      )}
+
+      {/* Popup for adding new widget to a specific category */}
+      {showCategoryPopup && (
+        <div className="popup-container">
+          <div className="popup-content">
+            <h2>Add New Widget</h2>
+            <div className="category-selection">
+              {categories.map(category => (
+                <div
+                  key={category.id}
+                  className={`category-item ${popupCategory === category.id ? 'selected' : ''}`}
+                  onClick={() => handleCategorySelect(category.id)}
+                >
+                  {category.name}
+                </div>
+              ))}
             </div>
+
+            {popupCategory && (
+              <div className="add-new-widget">
+                <input
+                  type="text"
+                  placeholder="Widget Name"
+                  value={newWidget.name}
+                  onChange={(e) => setNewWidget({ ...newWidget, name: e.target.value })}
+                />
+                <br />
+                <br />
+                <input
+                  type="text"
+                  placeholder="Widget Content"
+                  value={newWidget.content}
+                  onChange={(e) => setNewWidget({ ...newWidget, content: e.target.value })}
+                />
+                <br />
+                <br />
+                <button onClick={handleAddNewWidget}>Add Widget</button>
+              </div>
+            )}
             <button className="close-popup-button" onClick={handleClosePopup}>Close</button>
           </div>
         </div>
