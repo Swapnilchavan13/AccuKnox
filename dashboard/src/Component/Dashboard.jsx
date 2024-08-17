@@ -11,10 +11,8 @@ const Dashboard = () => {
     setSelectedCategory,
     loadInitialData,
     toggleWidgetSelection,
-    selectedWidgets,
-    selectedCategory,
     searchResults,
-    getUncheckedWidgets
+    getUncheckedWidgets,
   } = useWidgetStore((state) => ({
     categories: state.categories,
     addWidget: state.addWidget,
@@ -23,10 +21,8 @@ const Dashboard = () => {
     setSelectedCategory: state.setSelectedCategory,
     loadInitialData: state.loadInitialData,
     toggleWidgetSelection: state.toggleWidgetSelection,
-    selectedWidgets: state.selectedWidgets,
-    selectedCategory: state.selectedCategory,
     searchResults: state.searchResults,
-    getUncheckedWidgets: state.getUncheckedWidgets
+    getUncheckedWidgets: state.getUncheckedWidgets,
   }));
 
   const [query, setQuery] = useState('');
@@ -42,17 +38,13 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (popupCategory) {
-      setPopupWidgets(getUncheckedWidgets());
+      if (query === '') {
+        setPopupWidgets(getUncheckedWidgets(popupCategory));
+      } else {
+        setPopupWidgets(searchResults);
+      }
     }
-  }, [popupCategory, getUncheckedWidgets]);
-
-  useEffect(() => {
-    if (query === '') {
-      setPopupWidgets(getUncheckedWidgets());
-    } else {
-      setPopupWidgets(searchResults);
-    }
-  }, [query, searchResults, getUncheckedWidgets]);
+  }, [popupCategory, query, searchResults, getUncheckedWidgets]);
 
   const handleSearch = (e) => {
     const searchTerm = e.target.value;
@@ -64,9 +56,9 @@ const Dashboard = () => {
     setPopupCategory(categoryId);
     setSelectedCategory(categoryId);
     if (query === '') {
-      setPopupWidgets(getUncheckedWidgets()); // Reset widgets if no search query
+      setPopupWidgets(getUncheckedWidgets(categoryId));
     } else {
-      searchWidgets(query); // Maintain search filter when changing categories
+      searchWidgets(query);
     }
   };
 
@@ -80,11 +72,11 @@ const Dashboard = () => {
         }
       });
     }
-    setShowWidgetPopup(false); // Close the "Add Widget" popup after confirming
+    setShowWidgetPopup(false);
   };
 
   const handleWidgetSelect = (widgetId) => {
-    const updatedWidgets = popupWidgets.map(widget => 
+    const updatedWidgets = popupWidgets.map(widget =>
       widget.id === widgetId ? { ...widget, status: !widget.status } : widget
     );
     setPopupWidgets(updatedWidgets);
@@ -103,16 +95,15 @@ const Dashboard = () => {
       name: newWidget.name,
       content: newWidget.content,
       categoryId: popupCategory,
-      status: true
+      status: true,
     };
-    
+
     addWidget(popupCategory, widget);
 
-    // Update popupWidgets to include the new widget
     setPopupWidgets(prevWidgets => [...prevWidgets, widget]);
 
     setNewWidget({ name: '', content: '' });
-    setShowCategoryPopup(false); // Close the popup after adding
+    setShowCategoryPopup(false);
   };
 
   return (
@@ -126,30 +117,50 @@ const Dashboard = () => {
         />
       </div>
       <div className="grid-container">
-        <div className='dash'>
+        <div className="dash">
           <h1>CNAPP Dashboard</h1>
           <button className="open-popup-button" onClick={() => setShowWidgetPopup(true)}>Add Widget +</button>
         </div>
 
-        {categories.map(category => (
-          <div key={category.id} className="category-container">
-            <h2 className="h2tag">{category.name}</h2>
-            <div className="widget-grid">
-              {category.widgets
-                .filter(widget => widget.status) // Show only checked widgets
-                .map(widget => (
-                <div key={widget.id} className="widget">
-                  <span><h3>{widget.name}</h3></span>
-                  <p>{widget.content}</p>
-                  <button className="remove-button" onClick={() => removeWidget(category.id, widget.id)}>X</button>
+        {query ? (
+          categories.map(category => {
+            const filteredWidgets = searchResults.filter(widget => widget.categoryId === category.id);
+            return filteredWidgets.length > 0 && (
+              <div key={category.id} className="category-container">
+                <h2 className="h2tag">{category.name}</h2>
+                <div className="widget-grid">
+                  {filteredWidgets.map(widget => (
+                    <div key={widget.id} className="widget">
+                      <span><h3>{widget.name}</h3></span>
+                      <p>{widget.content}</p>
+                      <button className="remove-button" onClick={() => removeWidget(widget.categoryId, widget.id)}>X</button>
+                    </div>
+                  ))}
                 </div>
-              ))}
-              <div className='btndiv'>
-                <button onClick={() => setShowCategoryPopup(true)}>+ Add New</button>
+              </div>
+            );
+          })
+        ) : (
+          categories.map(category => (
+            <div key={category.id} className="category-container">
+              <h2 className="h2tag">{category.name}</h2>
+              <div className="widget-grid">
+                {category.widgets
+                  .filter(widget => widget.status)
+                  .map(widget => (
+                    <div key={widget.id} className="widget">
+                      <span><h3>{widget.name}</h3></span>
+                      <p>{widget.content}</p>
+                      <button className="remove-button" onClick={() => removeWidget(category.id, widget.id)}>X</button>
+                    </div>
+                  ))}
+                <div className="btndiv">
+                  <button onClick={() => setShowCategoryPopup(true)}>+ Add New</button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
       </div>
 
       {/* Popup for adding existing widgets */}
