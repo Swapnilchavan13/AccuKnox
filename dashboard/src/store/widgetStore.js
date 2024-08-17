@@ -7,17 +7,40 @@ const useWidgetStore = create((set, get) => ({
   selectedWidgets: [],
   searchResults: [],
 
+  // Load data from localStorage or fetch from API if not available
   async loadInitialData() {
     try {
-      const response = await fetch('/widgets.json');
-      const data = await response.json();
-      set({
-        categories: data.categories,
-        allWidgets: data.widgets.map(widget => ({ ...widget, status: widget.status || false })),
-      });
+      const localData = localStorage.getItem('widgetStore');
+      if (localData) {
+        const data = JSON.parse(localData);
+        set({
+          categories: data.categories || [],
+          allWidgets: data.allWidgets || [],
+        });
+      } else {
+        const response = await fetch('/widgets.json');
+        const data = await response.json();
+        set({
+          categories: data.categories || [],
+          allWidgets: data.widgets.map(widget => ({ ...widget, status: widget.status || false })) || [],
+        });
+        localStorage.setItem('widgetStore', JSON.stringify({
+          categories: data.categories,
+          allWidgets: data.widgets.map(widget => ({ ...widget, status: widget.status || false })),
+        }));
+      }
     } catch (error) {
       console.error('Failed to load data', error);
     }
+  },
+
+  // Save state to localStorage
+  saveToLocalStorage() {
+    const { categories, allWidgets } = get();
+    localStorage.setItem('widgetStore', JSON.stringify({
+      categories,
+      allWidgets,
+    }));
   },
 
   setSelectedCategory(categoryId) {
@@ -46,7 +69,10 @@ const useWidgetStore = create((set, get) => ({
 
         const updatedWidgets = [...state.allWidgets, { ...widget, status: widget.status || false }];
 
-        return { categories: updatedCategories, allWidgets: updatedWidgets };
+        const newState = { categories: updatedCategories, allWidgets: updatedWidgets };
+        set(newState);
+        state.saveToLocalStorage(); // Save the updated state
+        return newState;
       }
 
       return state;
@@ -67,13 +93,16 @@ const useWidgetStore = create((set, get) => ({
 
       const updatedWidgets = state.allWidgets.filter(widget => widget.id !== widgetId);
 
-      return { categories: updatedCategories, allWidgets: updatedWidgets };
+      const newState = { categories: updatedCategories, allWidgets: updatedWidgets };
+      set(newState);
+      state.saveToLocalStorage(); // Save the updated state
+      return newState;
     });
   },
 
   updateWidgetStatus: (categoryId, widgetId, status) => {
-    set(state => ({
-      categories: state.categories.map(category =>
+    set(state => {
+      const updatedCategories = state.categories.map(category =>
         category.id === categoryId
           ? {
               ...category,
@@ -84,8 +113,13 @@ const useWidgetStore = create((set, get) => ({
               )
             }
           : category
-      )
-    }));
+      );
+
+      const newState = { categories: updatedCategories };
+      set(newState);
+      state.saveToLocalStorage(); // Save the updated state
+      return newState;
+    });
   },
 
   searchWidgets(query) {
@@ -102,7 +136,10 @@ const useWidgetStore = create((set, get) => ({
 
       const selectedWidgets = updatedWidgets.filter(w => w.status);
 
-      return { allWidgets: updatedWidgets, selectedWidgets };
+      const newState = { allWidgets: updatedWidgets, selectedWidgets };
+      set(newState);
+      state.saveToLocalStorage(); // Save the updated state
+      return newState;
     });
   },
 
@@ -134,7 +171,10 @@ const useWidgetStore = create((set, get) => ({
 
       const updatedWidgets = [...state.allWidgets, { ...widget, status: false }];
 
-      return { categories: updatedCategories, allWidgets: updatedWidgets };
+      const newState = { categories: updatedCategories, allWidgets: updatedWidgets };
+      set(newState);
+      state.saveToLocalStorage(); // Save the updated state
+      return newState;
     });
   },
 }));

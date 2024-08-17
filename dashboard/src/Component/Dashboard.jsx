@@ -13,6 +13,7 @@ const Dashboard = () => {
     toggleWidgetSelection,
     searchResults,
     getUncheckedWidgets,
+    refreshPopupWidgets
   } = useWidgetStore((state) => ({
     categories: state.categories,
     addWidget: state.addWidget,
@@ -23,6 +24,7 @@ const Dashboard = () => {
     toggleWidgetSelection: state.toggleWidgetSelection,
     searchResults: state.searchResults,
     getUncheckedWidgets: state.getUncheckedWidgets,
+    refreshPopupWidgets: state.refreshPopupWidgets
   }));
 
   const [query, setQuery] = useState('');
@@ -41,7 +43,7 @@ const Dashboard = () => {
       if (query === '') {
         setPopupWidgets(getUncheckedWidgets(popupCategory));
       } else {
-        setPopupWidgets(searchResults);
+        setPopupWidgets(searchResults.filter(widget => widget.categoryId === popupCategory));
       }
     }
   }, [popupCategory, query, searchResults, getUncheckedWidgets]);
@@ -64,13 +66,11 @@ const Dashboard = () => {
 
   const handleConfirm = () => {
     if (popupCategory) {
-      popupWidgets.forEach(widget => {
-        if (widget.status) {
-          addWidget(popupCategory, widget);
-        } else {
-          removeWidget(popupCategory, widget.id);
-        }
-      });
+      const widgetsToAdd = popupWidgets.filter(widget => widget.status);
+      const widgetsToRemove = popupWidgets.filter(widget => !widget.status);
+
+      widgetsToAdd.forEach(widget => addWidget(popupCategory, widget));
+      widgetsToRemove.forEach(widget => removeWidget(popupCategory, widget.id));
     }
     setShowWidgetPopup(false);
   };
@@ -105,6 +105,12 @@ const Dashboard = () => {
     setNewWidget({ name: '', content: '' });
     setShowCategoryPopup(false);
   };
+
+  useEffect(() => {
+    if (popupCategory) {
+      refreshPopupWidgets(popupCategory);
+    }
+  }, [removeWidget, refreshPopupWidgets]);
 
   return (
     <div className="dashboard-container">
