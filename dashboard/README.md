@@ -20,11 +20,44 @@ This React application with Redux allows dynamic management of widgets within ca
 
 ### Prerequisites
 
-- Node.js (Download from [nodejs.org](https://nodejs.org/))
+- Node.js
 
 ### Installation
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/your-username/dynamic-dashboard.git
-   cd dynamic-dashboard
+   git clone https://github.com/Swapnilchavan13/AccuKnox
+   cd dashboard
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+
+3. **Running the Application:**
+Start the development server:
+npm start
+
+4. **Code Structure:**
+
+-App.js: Renders the Dashboard component.
+
+-Dashboard.js: Manages widget display and interactions.
+
+-store.js: Configures Redux store with localStorage integration.
+
+-widgetSlice.js: Manages widget and category states.
+
+
+5. **How It Works:**
+
+-State Management: Uses Redux for state management.
+
+-Persistence: Saves state to localStorage.
+
+**Actions:**
+
+-addWidget: Adds a widget to a category.
+
+-removeWidget: Removes a widget from a category.
+
+-toggleWidgetStatus: Toggles widget status.
