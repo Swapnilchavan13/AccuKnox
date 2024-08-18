@@ -1,5 +1,6 @@
-# Dynamic Dashboard Application https://accuknoxassignment1.netlify.app/
-
+# Dynamic Dashboard Application
+## Checkout Assignment
+## - https://accuknoxassignment1.netlify.app/
 ## Overview
 
 This React application with Redux allows dynamic management of widgets within categories. It supports adding, removing, and toggling widgets, and maintains state persistence using `localStorage`.
