@@ -1,85 +1,33 @@
-import React, { useEffect, useState } from 'react';
-import { useWidgetStore } from '../store/widgetStore';
+import React, { useState } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import '../style/dashboard.css';
+import { addWidget, removeWidget, toggleWidgetStatus } from '../store/widgetSlice';
 
 const Dashboard = () => {
-  const {
-    categories,
-    addWidget,
-    removeWidget,
-    searchWidgets,
-    setSelectedCategory,
-    loadInitialData,
-    toggleWidgetSelection,
-    searchResults,
-    getUncheckedWidgets,
-    refreshPopupWidgets
-  } = useWidgetStore((state) => ({
-    categories: state.categories,
-    addWidget: state.addWidget,
-    removeWidget: state.removeWidget,
-    searchWidgets: state.searchWidgets,
-    setSelectedCategory: state.setSelectedCategory,
-    loadInitialData: state.loadInitialData,
-    toggleWidgetSelection: state.toggleWidgetSelection,
-    searchResults: state.searchResults,
-    getUncheckedWidgets: state.getUncheckedWidgets,
-    refreshPopupWidgets: state.refreshPopupWidgets
-  }));
+  const categories = useSelector(state => state.widgets.categories);
+  const dispatch = useDispatch();
 
   const [query, setQuery] = useState('');
   const [showWidgetPopup, setShowWidgetPopup] = useState(false);
   const [showCategoryPopup, setShowCategoryPopup] = useState(false);
   const [popupCategory, setPopupCategory] = useState(null);
-  const [popupWidgets, setPopupWidgets] = useState([]);
   const [newWidget, setNewWidget] = useState({ name: '', content: '' });
 
-  useEffect(() => {
-    loadInitialData();
-  }, [loadInitialData]);
-
-  useEffect(() => {
-    if (popupCategory) {
-      if (query === '') {
-        setPopupWidgets(getUncheckedWidgets(popupCategory));
-      } else {
-        setPopupWidgets(searchResults.filter(widget => widget.categoryId === popupCategory));
-      }
-    }
-  }, [popupCategory, query, searchResults, getUncheckedWidgets]);
-
   const handleSearch = (e) => {
-    const searchTerm = e.target.value;
+    const searchTerm = e.target.value.toLowerCase();
     setQuery(searchTerm);
-    searchWidgets(searchTerm);
   };
 
   const handleCategorySelect = (categoryId) => {
     setPopupCategory(categoryId);
-    setSelectedCategory(categoryId);
-    if (query === '') {
-      setPopupWidgets(getUncheckedWidgets(categoryId));
-    } else {
-      searchWidgets(query);
-    }
   };
 
   const handleConfirm = () => {
-    if (popupCategory) {
-      const widgetsToAdd = popupWidgets.filter(widget => widget.status);
-      const widgetsToRemove = popupWidgets.filter(widget => !widget.status);
-
-      widgetsToAdd.forEach(widget => addWidget(popupCategory, widget));
-      widgetsToRemove.forEach(widget => removeWidget(popupCategory, widget.id));
-    }
     setShowWidgetPopup(false);
   };
 
   const handleWidgetSelect = (widgetId) => {
-    const updatedWidgets = popupWidgets.map(widget =>
-      widget.id === widgetId ? { ...widget, status: !widget.status } : widget
-    );
-    setPopupWidgets(updatedWidgets);
+    dispatch(toggleWidgetStatus({ categoryId: popupCategory, widgetId }));
   };
 
   const handleClosePopup = () => {
@@ -94,23 +42,14 @@ const Dashboard = () => {
       id: Date.now(),
       name: newWidget.name,
       content: newWidget.content,
-      categoryId: popupCategory,
       status: true,
     };
 
-    addWidget(popupCategory, widget);
-
-    setPopupWidgets(prevWidgets => [...prevWidgets, widget]);
+    dispatch(addWidget({ categoryId: popupCategory, widget }));
 
     setNewWidget({ name: '', content: '' });
     setShowCategoryPopup(false);
   };
-
-  useEffect(() => {
-    if (popupCategory) {
-      refreshPopupWidgets(popupCategory);
-    }
-  }, [removeWidget, refreshPopupWidgets]);
 
   return (
     <div className="dashboard-container">
@@ -128,45 +67,33 @@ const Dashboard = () => {
           <button className="open-popup-button" onClick={() => setShowWidgetPopup(true)}>Add Widget +</button>
         </div>
 
-        {query ? (
-          categories.map(category => {
-            const filteredWidgets = searchResults.filter(widget => widget.categoryId === category.id);
-            return filteredWidgets.length > 0 && (
-              <div key={category.id} className="category-container">
-                <h2 className="h2tag">{category.name}</h2>
-                <div className="widget-grid">
-                  {filteredWidgets.map(widget => (
-                    <div key={widget.id} className="widget">
-                      <span><h3>{widget.name}</h3></span>
+        {categories.map(category => (
+          <div key={category.id} className="category-container">
+            <h2 className="h2tag">{category.name}</h2>
+            <div className="widget-grid">
+              {category.widgets
+                .filter(widget => widget.status && widget.name.toLowerCase().includes(query))
+                .map(widget => (
+                  <div key={widget.id} className="widget">
+                    <h3>{widget.name}</h3>
+                    <div className='idiv'>
+                      <img style={{width:'100px'}} src="https://images.nagwa.com/figures/explainers/245194820905/4.svg" alt="" />
                       <p>{widget.content}</p>
-                      <button className="remove-button" onClick={() => removeWidget(widget.categoryId, widget.id)}>X</button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })
-        ) : (
-          categories.map(category => (
-            <div key={category.id} className="category-container">
-              <h2 className="h2tag">{category.name}</h2>
-              <div className="widget-grid">
-                {category.widgets
-                  .filter(widget => widget.status)
-                  .map(widget => (
-                    <div key={widget.id} className="widget">
-                      <span><h3>{widget.name}</h3></span>
-                      <p>{widget.content}</p>
-                      <button className="remove-button" onClick={() => removeWidget(category.id, widget.id)}>X</button>
-                    </div>
-                  ))}
-                <div className="btndiv">
-                  <button onClick={() => setShowCategoryPopup(true)}>+ Add New</button>
-                </div>
+                      </div>
+                    <button
+                      className="remove-button"
+                      onClick={() => dispatch(removeWidget({ categoryId: category.id, widgetId: widget.id }))}
+                    >
+                      X
+                    </button>
+                  </div>
+                ))}
+              <div className="btndiv">
+                <button onClick={() => setShowCategoryPopup(true)}>+ Add New</button>
               </div>
             </div>
-          ))
-        )}
+          </div>
+        ))}
       </div>
 
       {/* Popup for adding existing widgets */}
@@ -188,24 +115,20 @@ const Dashboard = () => {
 
             {popupCategory && (
               <div className="widget-selection">
-                {popupWidgets.length > 0 ? (
-                  popupWidgets.map(widget => (
-                    <div
-                      key={widget.id}
-                      className={`widget-item ${widget.status ? 'selected' : ''}`}
-                      onClick={() => handleWidgetSelect(widget.id)}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={widget.status}
-                        onChange={() => handleWidgetSelect(widget.id)}
-                      />
-                      <span>{widget.name}</span>
-                    </div>
-                  ))
-                ) : (
-                  <p>No widgets available for this category.</p>
-                )}
+                {categories.find(cat => cat.id === popupCategory).widgets.map(widget => (
+                  <div
+                    key={widget.id}
+                    className={`widget-item ${widget.status ? 'selected' : ''}`}
+                    onClick={() => handleWidgetSelect(widget.id)}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={widget.status}
+                      onChange={() => handleWidgetSelect(widget.id)}
+                    />
+                    <span>{widget.name}</span>
+                  </div>
+                ))}
               </div>
             )}
 
@@ -250,7 +173,7 @@ const Dashboard = () => {
                 />
                 <br />
                 <br />
-                <button onClick={handleAddNewWidget}>Add Widget</button>
+                <button className="add-widget-button" onClick={handleAddNewWidget}>Add Widget</button>
               </div>
             )}
             <button className="close-popup-button" onClick={handleClosePopup}>Close</button>

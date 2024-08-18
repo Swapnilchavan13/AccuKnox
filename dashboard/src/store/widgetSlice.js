@@ -1,4 +1,6 @@
-{
+import { createSlice } from '@reduxjs/toolkit';
+
+const initialState = {
   "categories": [
     {
       "id": "1",
@@ -38,3 +40,39 @@
     { "id": "12", "name": "Vulnerability Reports", "content": "List of vulnerabilities detected in scans.", "categoryId": "3", "status": true }
   ]
 }
+
+
+const widgetSlice = createSlice({
+  name: 'widgets',
+  initialState,
+  reducers: {
+    addWidget: (state, action) => {
+      const { categoryId, widget } = action.payload;
+      const category = state.categories.find(cat => cat.id === categoryId);
+      if (category) {
+        category.widgets.push(widget);
+      }
+    },
+    removeWidget: (state, action) => {
+      const { categoryId, widgetId } = action.payload;
+      const category = state.categories.find(cat => cat.id === categoryId);
+      if (category) {
+        category.widgets = category.widgets.filter(widget => widget.id !== widgetId);
+      }
+    },
+    toggleWidgetStatus: (state, action) => {
+      const { categoryId, widgetId } = action.payload;
+      const category = state.categories.find(cat => cat.id === categoryId);
+      if (category) {
+        const widget = category.widgets.find(widget => widget.id === widgetId);
+        if (widget) {
+          widget.status = !widget.status;
+        }
+      }
+    }
+  }
+});
+
+export const { addWidget, removeWidget, toggleWidgetStatus } = widgetSlice.actions;
+
+export default widgetSlice.reducer;

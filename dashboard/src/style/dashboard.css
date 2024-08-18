@@ -1,4 +1,5 @@
 .dashboard-container {
+  font-family: Arial, Helvetica, sans-serif;
   padding: 20px;
 }
 
@@ -66,7 +67,7 @@
 
 .btndiv{
   margin: auto;
-  padding: 10% 40%;
+  padding: 16% 41%;
   background-color: rgb(247, 244, 244);
   border-radius: 8px;
 }
@@ -111,6 +112,11 @@
   overflow-y: auto;
 }
 
+.idiv{
+  display: flex;
+  gap: 20%;
+}
+
 .popup-content h2{
   background-color: rgb(47, 47, 122);
   padding: 20px;
@@ -145,22 +151,32 @@ textarea {
   border-radius: 4px;
 }
 
+.add-new-widget input{
+  border-radius: 10px;
+height: 30px;
+width: 70%;
+}
+
 .add-widget-button,
 .close-popup-button {
   padding: 10px 20px;
   margin-right: 10px;
   border: none;
   cursor: pointer;
-  margin-top: 20px;
+  margin-top: 25%;
+  position: fixed;
 }
 
 .add-widget-button {
   border-radius: 5px;
+  margin-left: 40%;
+
   background-color: #292053;
   color: #fff;
 }
 
 .close-popup-button {
+  margin-left: 34%;
   border-radius: 5px;
   background-color: #d3d0d1;
   color: black;
