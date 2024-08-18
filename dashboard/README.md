@@ -15,7 +15,7 @@ This React application with Redux allows dynamic management of widgets within ca
 - Redux
 - Redux Toolkit
 - localStorage
-
+ 
 ## Getting Started
 
 ### Prerequisites
@@ -35,29 +35,29 @@ This React application with Redux allows dynamic management of widgets within ca
 
 3. **Running the Application:**
    ```bash
-npm start
+   npm start
 
 4. **Code Structure:**
 
--App.js: Renders the Dashboard component.
+- App.js: Renders the Dashboard component.
 
--Dashboard.js: Manages widget display and interactions.
+- Dashboard.js: Manages widget display and interactions.
 
--store.js: Configures Redux store with localStorage integration.
+- store.js: Configures Redux store with localStorage integration.
 
--widgetSlice.js: Manages widget and category states.
+- widgetSlice.js: Manages widget and category states.
 
 
 5. **How It Works:**
 
--State Management: Uses Redux for state management.
+- State Management: Uses Redux for state management.
 
--Persistence: Saves state to localStorage.
+- Persistence: Saves state to localStorage.
 
-**Actions:**
+6. **Actions:**
 
--addWidget: Adds a widget to a category.
+- addWidget: Adds a widget to a category.
 
--removeWidget: Removes a widget from a category.
+- removeWidget: Removes a widget from a category.
 
--toggleWidgetStatus: Toggles widget status.
+- toggleWidgetStatus: Toggles widget status.
