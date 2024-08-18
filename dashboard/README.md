@@ -34,7 +34,7 @@ This React application with Redux allows dynamic management of widgets within ca
    npm install
 
 3. **Running the Application:**
-Start the development server:
+   ```bash
 npm start
 
 4. **Code Structure:**
